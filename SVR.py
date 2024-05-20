@@ -1,4 +1,11 @@
 #%%
+
+# 추가: VESSL SDK 임포트
+import vessl
+
+# VESSL SDK 초기화
+vessl.init()
+
 import pandas as pd
 import numpy as np
 from sklearn.svm import SVR
@@ -123,6 +130,9 @@ def main(data_path, output_path):
         mape = mean_absolute_percentage_error(test_data[target_code], forecast[target_code])
         print(f"Iteration {i} - MAPE: {mape}")
         
+        # 추가: VESSL에 메트릭 로깅
+        vessl.log({"iteration": i, "mape": mape})
+        
         # Plot results
         plt.figure(figsize=(10, 6))
         plt.plot(data_original.index, data_original[target_code], label='Actual', color='blue')
@@ -132,7 +142,13 @@ def main(data_path, output_path):
         plt.title(f'SVR Forecast for {target_code}')
         plt.legend()
         plt.show()
-
+        
+        # 추가: VESSL에 이미지 로깅
+        plt.savefig(f'{output_path}/forecast_plot_{i}.png')
+        vessl.log_image(f'{output_path}/forecast_plot_{i}.png')
+        
+        plt.close()
+        
         # Collect results
         iteration_results = pd.DataFrame({
             'Date': forecast.index,
