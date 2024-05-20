@@ -95,7 +95,7 @@ def main(data_path, output_path):
 
     # Set parameters
     target_code = 'tar6'
-    offset_month = 6
+    offset_month = 3
     k = 3
 
     # Load and handle data
