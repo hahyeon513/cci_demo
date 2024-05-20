@@ -145,7 +145,7 @@ def main(data_path, output_path):
         os.makedirs(output_path, exist_ok=True)
         plot_filename = f'{output_path}/forecast_plot_{i}.png'
         plt.savefig(plot_filename)
-        vessl.log_image(plot_filename)
+        vessl.log({"forecast_plot": plot_filename})
         
         plt.close()
         
@@ -174,4 +174,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     main(args.data_path, args.output_path)
+
 
