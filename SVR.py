@@ -98,11 +98,6 @@ def load_dict_from_json(file_path):
 def main(data_path, output_path):
     significant_vars_dict = load_dict_from_json(f'{data_path}/significant_vars_dict')
 
-    # Set parameters
-    target_code = 'tar6'
-    offset_month = 3
-    k = 3
-
     # Load and handle data
     DH = DataHandleSVR(f'{data_path}/dataset_target_cleaned.csv',
                        f'{data_path}/dataset_factors_cleaned.csv',
@@ -114,7 +109,7 @@ def main(data_path, output_path):
         data_original = DH.set_data(target_code, k=k)
         vars = data_original.columns
         data_original = DH.cut_data(data=data_original, step=offset_month, i=i)
-        data_original = DH.create_features(data_original, target_code, n_lags=1, additional_vars=vars)
+        data_original = DH.create_features(data_original, target_code, n_lags=n_lags, additional_vars=vars)
 
         # Split dataset
         train_data = data_original.iloc[:-offset_month,:]
@@ -171,8 +166,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, required=True)
     parser.add_argument('--output_path', type=str, required=True)
+    parser.add_argument('--target_code', type=str, required=True)
+    parser.add_argument('--offset_month', type=int, required=True)
+    parser.add_argument('--k', type=int, required=True)
+    parser.add_argument('--n_lags', type=int, required=True)
     args = parser.parse_args()
     
-    main(args.data_path, args.output_path)
+    main(args.data_path, args.output_path, args.target_code, args.offset_month, args.k, args.n_lags)
 
 
