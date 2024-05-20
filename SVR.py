@@ -1,5 +1,3 @@
-#%%
-
 # 추가: VESSL SDK 임포트
 import vessl
 
@@ -144,8 +142,10 @@ def main(data_path, output_path):
         plt.show()
         
         # 추가: VESSL에 이미지 로깅
-        plt.savefig(f'{output_path}/forecast_plot_{i}.png')
-        vessl.log_image(f'{output_path}/forecast_plot_{i}.png')
+        os.makedirs(output_path, exist_ok=True)
+        plot_filename = f'{output_path}/forecast_plot_{i}.png'
+        plt.savefig(plot_filename)
+        vessl.log_image(plot_filename)
         
         plt.close()
         
@@ -174,13 +174,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     main(args.data_path, args.output_path)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type=str, required=True)
-    parser.add_argument('--output_path', type=str, required=True)
-    args = parser.parse_args()
-    
-    main(args.data_path, args.output_path)
-#%%
 
