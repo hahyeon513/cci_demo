@@ -36,7 +36,7 @@ class GrangerCausalityTest:
         return [var for var, _ in top_k_factors]
     
     def save_significant_vars_dict(self):
-        with open('./significant_vars_dict_10', 'w') as file:
+        with open(f'{output_path}/significant_vars_dict_10', 'w') as file:
             json.dump(self.significant_vars_dict, file, indent=4)
 
     def save_significant_vars_dict_kor(self):
@@ -48,7 +48,7 @@ class GrangerCausalityTest:
                 vars_temp.append(self.code_factor_dict[var])
             dict_temp[target_kor] = vars_temp
         print(dict_temp)
-        with open('./significant_vars_dict_kor_10', 'w') as file:
+        with open(f'{output_path}/significant_vars_dict_kor_10', 'w') as file:
             json.dump(dict_temp, file,ensure_ascii = False, indent=4)
 
 def main(data_path, output_path):
