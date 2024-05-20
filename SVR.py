@@ -6,7 +6,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error,mean_absolute_percentage_error
 import matplotlib.pyplot as plt
 import json
-import argparse
 
 class DataHandle:
     def __init__(self, target_data_path, factor_data_path, significant_vars_dict):
@@ -77,7 +76,7 @@ class DataHandleSVR(DataHandle):  # Inherit from your existing DataHandle class
         X_test_scaled = scaler.transform(X_test)
 
         # Initialize and train the SVR model
-        model = SVR(kernel='rbf', C=1000, gamma=0.001, epsilon=0.1)
+        model = SVR(kernel='rbf', C=1000, gamma=0.001)
         model.fit(X_train_scaled, y_train)
 
         # Forecast
@@ -89,60 +88,63 @@ def load_dict_from_json(file_path):
         data = json.load(file)
     return data
 
-def main(data_path, output_path):
-    significant_vars_dict = load_dict_from_json(f'{data_path}/significant_vars_dict.json')
+# Load json file
+significant_vars_dict = load_dict_from_json('C:/Users/Yoon Ha Hyeon/Desktop/CCI_Prediction/04_FAB_CCI/models/0_GCT/significant_vars_dict')
 
-    target_code = 'tar6'
-    offset_month = 6
-    k = 3
+# Set parameters
+target_code = 'tar6'
+offset_month = 6
+k = 3
 
-    DH = DataHandleSVR(f'{data_path}/dataset_target_cleaned.csv',
-                       f'{data_path}/dataset_factors_cleaned.csv',
-                       significant_vars_dict)
-    all_results = pd.DataFrame()
+# Load and handle data
+DH = DataHandleSVR('C:/Users/Yoon Ha Hyeon/Desktop/CCI_Prediction/04_FAB_CCI/dataset/dataset_target_cleaned.csv',
+                   'C:/Users/Yoon Ha Hyeon/Desktop/CCI_Prediction/04_FAB_CCI/dataset/dataset_factors_cleaned.csv',
+                   significant_vars_dict)
+all_results = pd.DataFrame()
 
-    for i in range(60 // offset_month):
-        data_original = DH.set_data(target_code, k=k)
-        vars = data_original.columns
-        data_original = DH.cut_data(data=data_original, step=offset_month, i=i)
-        data_original = DH.create_features(data_original, target_code, n_lags=7, additional_vars=vars)
+# Forecast using SVR
+for i in range(60 // offset_month):
+    data_original = DH.set_data(target_code, k=k)
+    vars = data_original.columns
+    data_original = DH.cut_data(data=data_original, step=offset_month, i=i)
+    data_original = DH.create_features(data_original, target_code, n_lags=1, additional_vars=vars)
 
-        train_data = data_original.iloc[:-offset_month,:]
-        test_data = data_original.iloc[-offset_month:,:]
+    # Split dataset
+    train_data = data_original.iloc[:-offset_month,:]
+    test_data = data_original.iloc[-offset_month:,:]
 
-        predictions = DH.train_predict_svr(train_data, test_data, target_code, additional_vars=vars)
-        forecast = pd.DataFrame(predictions, index=test_data.index, columns=[target_code])
-        
-        mape = mean_absolute_percentage_error(test_data[target_code], forecast[target_code])
-        print(f"Iteration {i} - MAPE: {mape}")
-        
-        plt.figure(figsize=(10, 6))
-        plt.plot(data_original.index, data_original[target_code], label='Actual', color='blue')
-        plt.plot(forecast.index, forecast[target_code], label='Predicted', color='red', linestyle='--')
-        plt.xlabel('Date')
-        plt.ylabel(target_code)
-        plt.title(f'SVR Forecast for {target_code}')
-        plt.legend()
-        plt.show()
-
-        iteration_results = pd.DataFrame({
-            'Date': forecast.index,
-            'Iteration': i,
-            'Actual': test_data[target_code],
-            'Predicted': forecast[target_code]
-        })
-        all_results = pd.concat([all_results, iteration_results], ignore_index=True)
-
-    all_results.sort_values('Date', inplace=True)
-    results_file_path = f'{output_path}/forecast_results_all_iterations_{offset_month}month_{target_code}.csv'
-    all_results.to_csv(results_file_path, index=False)
-    print(f"All results saved to {results_file_path}")
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type=str, required=True)
-    parser.add_argument('--output_path', type=str, required=True)
-    args = parser.parse_args()
+    # Predict using SVR
+    predictions = DH.train_predict_svr(train_data, test_data, target_code, additional_vars=vars)
+    forecast = pd.DataFrame(predictions, index=test_data.index, columns=[target_code])
     
-    main(args.data_path, args.output_path)
+    # Calculate MAPE
+    mape = mean_absolute_percentage_error(test_data[target_code], forecast[target_code])
+    print(f"Iteration {i} - MAPE: {mape}")
+    
+    # Plot results
+    plt.figure(figsize=(10, 6))
+    plt.plot(data_original.index, data_original[target_code], label='Actual', color='blue')
+    plt.plot(forecast.index, forecast[target_code], label='Predicted', color='red', linestyle='--')
+    plt.xlabel('Date')
+    plt.ylabel(target_code)
+    plt.title(f'SVR Forecast for {target_code}')
+    plt.legend()
+    plt.show()
+
+    # Collect results
+    iteration_results = pd.DataFrame({
+        'Date': forecast.index,
+        'Iteration': i,
+        'Actual': test_data[target_code],
+        'Predicted': forecast[target_code]
+    })
+    all_results = pd.concat([all_results, iteration_results], ignore_index=True)
+
+# Sort results by date
+all_results.sort_values('Date', inplace=True)
+
+# Save results
+results_file_path = f'C:/Users/Yoon Ha Hyeon/Desktop/CCI_Prediction (3)/04_FAB_CCI/models/4_SVR/forecast_results_all_iterations_{offset_month}month_{target_code}.csv'
+all_results.to_csv(results_file_path, index=False)
+print(f"All results saved to {results_file_path}")
 # %%
