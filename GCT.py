@@ -35,11 +35,11 @@ class GrangerCausalityTest:
         top_k_factors = significant_factors_sorted[:self.k] if self.k is not None else significant_factors_sorted
         return [var for var, _ in top_k_factors]
     
-    def save_significant_vars_dict(self):
+    def save_significant_vars_dict(self, output_path):
         with open(f'{output_path}/significant_vars_dict_10', 'w') as file:
             json.dump(self.significant_vars_dict, file, indent=4)
 
-    def save_significant_vars_dict_kor(self):
+    def save_significant_vars_dict_kor(self, output_path):
         dict_temp = {}
         for target in self.significant_vars_dict.keys():
             target_kor = self.code_factor_dict[target]
@@ -49,7 +49,7 @@ class GrangerCausalityTest:
             dict_temp[target_kor] = vars_temp
         print(dict_temp)
         with open(f'{output_path}/significant_vars_dict_kor_10', 'w') as file:
-            json.dump(dict_temp, file,ensure_ascii = False, indent=4)
+            json.dump(dict_temp, file, ensure_ascii=False, indent=4)
 
 def main(data_path, output_path):
     GCT = GrangerCausalityTest(f'{data_path}/dataset_target_cleaned.csv', 
