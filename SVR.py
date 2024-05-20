@@ -95,7 +95,7 @@ def load_dict_from_json(file_path):
         data = json.load(file)
     return data
 
-def main(data_path, output_path):
+def main(data_path, output_path, target_code, offset_month, k, n_lags):
     significant_vars_dict = load_dict_from_json(f'{data_path}/significant_vars_dict')
 
     # Load and handle data
