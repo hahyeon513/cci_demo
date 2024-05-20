@@ -91,7 +91,7 @@ def load_dict_from_json(file_path):
     return data
 
 def main(data_path, output_path):
-    significant_vars_dict = load_dict_from_json(f'{data_path}/significant_vars_dict.json')
+    significant_vars_dict = load_dict_from_json(f'{data_path}/significant_vars_dict')
 
     # Set parameters
     target_code = 'tar6'
