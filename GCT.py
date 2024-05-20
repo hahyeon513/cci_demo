@@ -4,6 +4,7 @@ import numpy as np
 from statsmodels.tsa.stattools import grangercausalitytests
 import json
 import argparse
+import os
 
 class GrangerCausalityTest:
     def __init__(self, target_data_path, factor_data_path, factor_table_path, k, signif):
@@ -36,10 +37,12 @@ class GrangerCausalityTest:
         return [var for var, _ in top_k_factors]
     
     def save_significant_vars_dict(self, output_path):
+        os.makedirs(output_path, exist_ok=True)
         with open(f'{output_path}/significant_vars_dict_10', 'w') as file:
             json.dump(self.significant_vars_dict, file, indent=4)
 
     def save_significant_vars_dict_kor(self, output_path):
+        os.makedirs(output_path, exist_ok=True)
         dict_temp = {}
         for target in self.significant_vars_dict.keys():
             target_kor = self.code_factor_dict[target]
@@ -49,7 +52,7 @@ class GrangerCausalityTest:
             dict_temp[target_kor] = vars_temp
         print(dict_temp)
         with open(f'{output_path}/significant_vars_dict_kor_10', 'w') as file:
-            json.dump(dict_temp, file, ensure_ascii=False, indent=4)
+            json.dump(dict_temp, file,ensure_ascii = False, indent=4)
 
 def main(data_path, output_path):
     GCT = GrangerCausalityTest(f'{data_path}/dataset_target_cleaned.csv', 
@@ -72,6 +75,10 @@ if __name__ == "__main__":
     parser.add_argument('--data_path', type=str, required=True)
     parser.add_argument('--output_path', type=str, required=True)
     args = parser.parse_args()
+    
+    main(args.data_path, args.output_path)
+#%%
+
     
     main(args.data_path, args.output_path)
 #%%
